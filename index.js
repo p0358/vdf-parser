@@ -100,11 +100,11 @@ function parse(text, types = true) {
 
                 if (types) {
                     if (TYPEEX.INT.test(val)) {
-                        val = parseInt(val)
+                        val = parseInt(val);
                     } else if (TYPEEX.FLOAT.test(val)) {
-                        val = parseFloat(val)
+                        val = parseFloat(val);
                     } else if (TYPEEX.BOOLEAN.test(val)) {
-                        val = val.toLowerCase() == "true"
+                        val = val.toLowerCase() == "true";
                     }
                 }
 
@@ -126,8 +126,8 @@ function parse(text, types = true) {
 }
 
 function stringify(obj, pretty) {
-    if ( typeof obj != "object") {
-            throw new TypeError("VDF.stringify: First input parameter is not an object");
+    if (typeof obj != "object") {
+        throw new TypeError("VDF.stringify: First input parameter is not an object");
     }
 
     pretty = (typeof pretty == "boolean" && pretty) ? true : false;
@@ -136,7 +136,7 @@ function stringify(obj, pretty) {
 }
 
 function _dump(obj, pretty, level) {
-    if ( typeof obj != "object" ) {
+    if (typeof obj != "object") {
         throw new TypeError("VDF.stringify: a key has value of type other than string or object");
     }
 
@@ -152,7 +152,7 @@ function _dump(obj, pretty, level) {
     }
 
     for (var key in obj) {
-        if ( typeof obj[key] == "object" ) {
+        if (typeof obj[key] == "object") {
             if (Array.isArray(obj[key])) {
                 obj[key].forEach(function (element) {
                     buf += [line_indent, '"', key, '"\n', line_indent, '{\n', _dump(element,pretty,level+1), line_indent, "}\n"].join('');

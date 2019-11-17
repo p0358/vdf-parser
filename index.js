@@ -101,9 +101,9 @@ function parse(text, types = true) {
                 if (types) {
                     if (TYPEEX.INT.test(val)) {
                         val = parseInt(val)
-                    } else if (TYPEEX.FLOAT.test(currentValue)) {
+                    } else if (TYPEEX.FLOAT.test(val)) {
                         val = parseFloat(val)
-                    } else if (TYPEEX.BOOLEAN.test(currentValue)) {
+                    } else if (TYPEEX.BOOLEAN.test(val)) {
                         val = val.toLowerCase() == "true"
                     }
                 }

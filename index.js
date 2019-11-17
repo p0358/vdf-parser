@@ -97,7 +97,15 @@ function parse(text, types = true) {
             }
             else {
                 // value key
-
+                
+                if (m[7] === undefined && m[8] === undefined) {
+                    if (i + 1 >= j) {
+                        throw new SyntaxError("VDF.parse: un-closed quotes at end of file");
+                    }
+                    line += "\n" + lines[++i];
+                    continue;
+                }
+                
                 if (types) {
                     if (TYPEEX.INT.test(val)) {
                         val = parseInt(val);
@@ -108,11 +116,7 @@ function parse(text, types = true) {
                     }
                 }
 
-                if (m[7] === undefined && m[8] === undefined) {
-                    line += "\n" + lines[++i];
-                    continue;
-                }
-
+                // TODO: Replicate above array checks here as well, to support duplicate items of other type than an object (e.g. if one of keys represents a string, and the other is parent key with objects inside)
                 stack[stack.length-1][key] = val;
             }
 

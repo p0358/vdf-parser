@@ -4,8 +4,8 @@
 // authors: Rossen Popov, 2014-2016; p0358, 2019
 
 const TYPEEX = {
-    INT: /^\d+$/,
-    FLOAT: /^\d+\.\d+$/,
+    INT: /^\-?\d+$/,
+    FLOAT: /^\-?\d+\.\d+$/,
     BOOLEAN: /true|false/i,
 }
 

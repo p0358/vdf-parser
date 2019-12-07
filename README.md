@@ -1,6 +1,7 @@
 # vdf-parser
 
-`vdf-parser` is a simple library that can convert VDF to JSON and vice versa. It is mostly based on [rossengeorgiev/vdf-parser](https://github.com/rossengeorgiev/vdf-parser), but includes some features inspired by [RoyalBingBong/vdfplus](https://github.com/RoyalBingBong/vdfplus), which lacked some features supported by the former...
+`vdf-parser` is a library that can convert VDF to JSON and vice versa.
+It is mostly based on [rossengeorgiev/vdf-parser](https://github.com/rossengeorgiev/vdf-parser), but includes some features inspired by [RoyalBingBong/vdfplus](https://github.com/RoyalBingBong/vdfplus) (which lacked some features supported by the former...), and a couple of new features.
 
 Format: https://developer.valvesoftware.com/wiki/KeyValues
 
@@ -9,8 +10,11 @@ VDF may contain comments. However, they are not preserved during decoding.
 ## Features
 
 - Supports unquoted keys and values
-- Supports parent keys that appear multiple times by "arrayifying" them
-- Supports uppercase characters in keys and values
+- Supports keys that appear multiple times by "arrayifying" them – whether they contain child objects or other values
+- Supports uppercase characters in keys and values (and unquoted floats in values)
+- Supports value type recognition and automatic conversion (booleans, integers, floats)
+- Supports non well formed objects (missing newlines), for example: `"1" { "label" "#SFUI_WinMatchColon" "value" "#SFUI_Rounds" }`
+- Recognizes conditionals (ex. `[$WIN32||$X360]`), but skips their interpretation
 - Includes TypeScript types
 
 ## Methods
@@ -34,3 +38,10 @@ export function stringify(obj: object, pretty?: boolean = false): string;
 ## Installation
 
 `npm install vdf-parser`
+
+## Usage
+
+```js
+const VDF = require('vdf-parser');
+var parsed = VDF.parse(text);
+```

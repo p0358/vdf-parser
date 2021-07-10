@@ -15,6 +15,8 @@ function perform_test(source_string, test_expect, options, test_id, expect_failu
             if (expect_failure) return;
             anyTestFailed = true;
             console.log(test_result);
+            //console.log('expected:', JSON.stringify(test_expect, null, '  '));
+            //console.log('actual:', JSON.stringify(test_result, null, '  '));
             console.error("==========================================\nTest failed (mismatch): "+test_id+"\n==========================================");
         }
 
@@ -58,6 +60,15 @@ function perform_stringify_test(source_object, test_expect, options, test_id) {
 }
 
 let test, test_expect;
+
+// basic test
+
+test = `"basic"
+{
+    "key" "value"
+}`;
+test_expect = { basic: { key: 'value' }};
+perform_test(test, test_expect, {}, "basic");
 
 // main test
 
@@ -118,6 +129,34 @@ misc//{}
     "bool_test_ok2" "true"
     "bool_test_not_ok1" "AA_TRuE_BB"
     "bool_test_not_ok2" notTRuE
+    "not_ps3" "not_ps3" [!$PS3] "ps3" "ps3" [$PS3]
+    "not_ps3_""not_ps3"[!$PS3]"ps3_""ps3"[$PS3][$PS3] // the orphan one will be ignored, but the original parser probably did not do that
+}// some empty lines:
+
+    
+//
+/
+multiline {
+    z z z{a a}
+    "a" "line1
+line2
+line3"
+    "b" "
+line1
+line2
+"
+c c d"
+ddd" e e f "reee
+eee 
+   
+"
+g "g
+g" f{a a}
+h "hf{a a}
+" f{a a b{b b} c{a"fd 
+  
+
+f"}} // multiline keys are not supported however
 }
 `;
 
@@ -172,7 +211,24 @@ test_expect = {
         bool_test_ok1: true,
         bool_test_ok2: true,
         bool_test_not_ok1: 'AA_TRuE_BB',
-        bool_test_not_ok2: 'notTRuE'
+        bool_test_not_ok2: 'notTRuE',
+        not_ps3: 'not_ps3', ps3: 'ps3',
+        not_ps3_: 'not_ps3', ps3_: 'ps3'
+    },
+    multiline: {
+        z: [ 'z', {a: 'a'} ],
+        a: "line1\nline2\nline3",
+        b: "\nline1\nline2\n",
+        c: 'c',
+        d: "\nddd",
+        e: 'e',
+        f: [
+            "reee\neee \n   \n",
+            {a:'a'},
+            {a:'a', b:{b:'b'}, c:{ a:"fd \n  \n\nf" }}
+        ],
+        g: "g\ng",
+        h: "hf{a a}\n"
     }
 };
 

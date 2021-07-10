@@ -2,7 +2,7 @@
 
 `vdf-parser` is a library that can convert VDF to JSON and vice versa.
 
-It is mostly based on [rossengeorgiev/vdf-parser](https://github.com/rossengeorgiev/vdf-parser) and includes some features inspired by [RoyalBingBong/vdfplus](https://github.com/RoyalBingBong/vdfplus) (which lacked some features supported by the former...), but contains many new features.
+It is mostly based on [rossengeorgiev/vdf-parser](https://github.com/rossengeorgiev/vdf-parser) and includes some features inspired by [RoyalBingBong/vdfplus](https://github.com/RoyalBingBong/vdfplus) (which lacked some features supported by the former...), but contains many new features and fixes.
 
 Format: https://developer.valvesoftware.com/wiki/KeyValues
 

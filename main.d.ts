@@ -1,17 +1,44 @@
 declare module 'vdf-parser' {
+    interface VDFParseOptions {
+        /**
+         * Attempt to automatically convert numbers and booleans to their correct types, defaults to true
+         */
+        types: boolean = true;
+
+        /**
+         * Arrayify the values if they appear multiple times.
+         * Enabled by default, because Source does support multiple values with the same key (as separate entries).
+         * One may want to disable it if they expect a single value and their code is not prepared for different cases.
+         * In such case, the existing text value would be replaced with the new one, and existing object patched with the new values.
+         */
+        arrayify: boolean = true;
+    }
+
+    interface VDFStringifyOptions {
+        /**
+         * Add indentation to the resulting text, defaults to false
+         */
+        pretty: boolean = false;
+
+        /**
+         * Indent with the following characters, defaults to a tabulator, requires "pretty" to be set to true
+         */
+        indent: string = "\t";
+    }
+
     /**
      * Parse a VDF string into a JavaScript object
      * @param text VDF text
-     * @param types Attempt to automatically convert numbers and booleans to their correct types, defaults to true
+     * @param options Parsing options. Accepts a boolean for backwards compatibility ("types" option defaulting to true)
      * @returns Parsed object
      */
-    export function parse(text: string, types?: boolean): object;
+    export function parse(text: string, options?: VDFParseOptions | boolean): object;
 
     /**
      * Parse a JavaScript object into a VDF string
      * @param obj The object to stringify
-     * @param pretty Add intendation to the resulting text, defaults to false
+     * @param options Parsing options. Accepts a boolean for backwards compatibility ("pretty" option defaulting to false)
      * @returns VDF string
      */
-    export function stringify(obj: object, pretty?: boolean): string;
+    export function stringify(obj: object, options?: VDFStringifyOptions | boolean): string;
 }

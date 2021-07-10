@@ -11,11 +11,17 @@ const TYPEEX = {
     BOOLEAN: /^(true|false)$/i,
 }
 
-function parse(text, types = true) {
-    if (typeof text != "string") {
+function parse(text, options) {
+    if (typeof text !== "string") {
         throw new TypeError("VDF.parse: Expecting parameter to be a string");
     }
-    types = (typeof types == "boolean") ? types : true;
+
+    options = {
+        types:
+            (typeof options === "boolean") ? options // backward compatibility with the old boolean param
+            : ((typeof options === "object" && "types" in options) ? options.types : true),
+        arrayify: (typeof options === "object" && "arrayify" in options) ? options.arrayify : true
+    };
 
     lines = text.split("\n");
 
@@ -106,15 +112,23 @@ function parse(text, types = true) {
                         stack.push(stack[stack.length-1][key]);
                     }
 
-                    // exists already, is an object, but not an array, we turn it into an array to push the next object there
+                    // exists already, is an object, but not an array
                     else if (stack[stack.length-1][key] !== undefined && !Array.isArray(stack[stack.length-1][key])) {
-                        stack[stack.length-1][key] = [stack[stack.length-1][key], {}]; // turn current object into array with the object and new empty object
-                        stack.push(stack[stack.length-1][key]); // push our array to stack
-                        stack.push(stack[stack.length-1][1]); // push our newly created (2nd) object to stack
+                        if (options.arrayify) {
+                            // we turn it into an array to push the next object there
+                            stack[stack.length-1][key] = [stack[stack.length-1][key], {}]; // turn current object into array with the object and new empty object
+                            stack.push(stack[stack.length-1][key]); // push our array to stack
+                            stack.push(stack[stack.length-1][1]); // push our newly created (2nd) object to stack
+                        } else {
+                            // push it on stack and let it get patched with new values
+                            stack.push(stack[stack.length-1][key]);
+                        }
                     }
 
                     // exists already, is an array of objects
                     else if (stack[stack.length-1][key] !== undefined && Array.isArray(stack[stack.length-1][key])) {
+                        if (!options.arrayify)
+                            throw new Error("VDF.parse: this code block should never be reached with arrayify set to false! [1]");
                         stack.push(stack[stack.length-1][key]); // push current array on stack
                         stack[stack.length-1].push({}); // append new object to that array
                         stack.push(stack[stack.length-1][ (stack[stack.length-1]).length-1 ]); // push that new (last) object on stack
@@ -133,7 +147,7 @@ function parse(text, types = true) {
                         continue;
                     }
                     
-                    if (types) {
+                    if (options.types) {
                         if (TYPEEX.INT.test(val)) {
                             val = parseInt(val);
                         } else if (TYPEEX.FLOAT.test(val)) {
@@ -148,13 +162,21 @@ function parse(text, types = true) {
                         stack[stack.length-1][key] = val;
                     }
 
-                    // exists already, is an object, but not an array, we turn it into an array and push the next object there
+                    // exists already, but is not an array
                     else if (stack[stack.length-1][key] !== undefined && !Array.isArray(stack[stack.length-1][key])) {
-                        stack[stack.length-1][key] = [stack[stack.length-1][key], val]; // turn current object into array with the old object and the new object
+                        if (options.arrayify) {
+                            // we turn it into an array and push the next object there
+                            stack[stack.length-1][key] = [stack[stack.length-1][key], val]; // turn current object into array with the old object and the new object
+                        } else {
+                            // replace it with the new value
+                            stack[stack.length-1][key] = val;
+                        }
                     }
 
                     // exists already, is an array
                     else if (stack[stack.length-1][key] !== undefined && Array.isArray(stack[stack.length-1][key])) {
+                        if (!options.arrayify)
+                            throw new Error("VDF.parse: this code block should never be reached with arrayify set to false! [2]");
                         stack[stack.length-1][key].push(val);
                     }
                     
@@ -174,41 +196,56 @@ function parse(text, types = true) {
     return obj;
 }
 
-function stringify(obj, pretty) {
-    if (typeof obj != "object") {
+function stringify(obj, options) {
+    if (typeof obj !== "object") {
         throw new TypeError("VDF.stringify: First input parameter is not an object");
     }
 
-    pretty = (typeof pretty == "boolean" && pretty) ? true : false;
+    options = {
+        pretty:
+            (typeof options === "boolean") ? options // backward compatibility with the old boolean param
+            : ((typeof options === "object" && "pretty" in options) ? options.pretty : false),
+        indent: (typeof options === "object" && "indent" in options) ? options.indent : "\t"
+    };
 
-    return _dump(obj,pretty,0);
+    return _dump(obj, options, 0);
 }
 
-function _dump(obj, pretty, level) {
-    if (typeof obj != "object") {
-        throw new TypeError("VDF.stringify: a key has value of type other than string or object");
+function _dump(obj, options, level) {
+    if (typeof obj !== "object") {
+        throw new TypeError("VDF.stringify: a key has value of type other than string or object: " + typeof obj);
     }
 
-    var indent = "\t";
+    var indent = options.indent; // "\t"
     var buf = "";
     var line_indent = "";
 
 
-    if (pretty) {
+    if (options.pretty) {
         for (var i = 0; i < level; i++ ) {
             line_indent += indent;
         }
     }
 
     for (var key in obj) {
-        if (typeof obj[key] == "object") {
+        if (typeof obj[key] === "object") {
             if (Array.isArray(obj[key])) {
                 obj[key].forEach(function (element) {
-                    buf += [line_indent, '"', key, '"\n', line_indent, '{\n', _dump(element,pretty,level+1), line_indent, "}\n"].join('');
+                    if (typeof element !== "object") {
+                        // de-arrayifying a non-object (strings etc)
+                        // fake an object to write:
+                        _element = {};
+                        _element[key] = element;
+                        buf += _dump(_element,options,level);
+                    }
+                    else {
+                        // de-arrayifying an object
+                        buf += [line_indent, '"', key, '"\n', line_indent, '{\n', _dump(element,options,level+1), line_indent, "}\n"].join('');
+                    }
                 });
             }
             else
-            buf += [line_indent, '"', key, '"\n', line_indent, '{\n', _dump(obj[key],pretty,level+1), line_indent, "}\n"].join('');
+            buf += [line_indent, '"', key, '"\n', line_indent, '{\n', _dump(obj[key],options,level+1), line_indent, "}\n"].join('');
         }
         else {
             buf += [line_indent, '"', key, '" "', String(obj[key]), '"\n'].join('');

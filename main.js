@@ -20,7 +20,8 @@ function parse(text, options) {
         types:
             (typeof options === "boolean") ? options // backward compatibility with the old boolean param
             : ((typeof options === "object" && "types" in options) ? options.types : true),
-        arrayify: (typeof options === "object" && "arrayify" in options) ? options.arrayify : true
+        arrayify: (typeof options === "object" && "arrayify" in options) ? options.arrayify : true,
+        allowEmptyUnquotedValues: (typeof options === "object" && "allowEmptyUnquotedValues" in options) ? options.allowEmptyUnquotedValues : 'warn'
     };
 
     lines = text.split("\n");
@@ -28,6 +29,7 @@ function parse(text, options) {
     var obj = {};
     var stack = [obj];
     var expect_bracket = false;
+    var last_key, last_val; // for allowEmptyUnquotedValues
     var name = "";
 
     var re_kv = new RegExp(
@@ -69,6 +71,7 @@ function parse(text, options) {
 
             // skip empty and comment lines, again
             if ( line == "" || line[0] == '/') { continue; }
+            console.log('stack', stack);
 
             // one level deeper
             if ( line[0] == "{" ) {
@@ -77,7 +80,24 @@ function parse(text, options) {
             }
 
             if (expect_bracket) {
-                throw new SyntaxError("VDF.parse: invalid syntax on line " + (i+1) + " (expected opening bracket, empty unquoted values are not allowed)");
+                if (!options.allowEmptyUnquotedValues)
+                    throw new SyntaxError("VDF.parse: invalid syntax on line " + (i+1) + " (expected opening bracket, empty unquoted values are not allowed)");
+                if (options.allowEmptyUnquotedValues === 'warn')
+                    console.warn("VDF.parse: warning on line " + (i+1) + " (expected opening bracket, treating the key \""
+                        + last_key + "\" as having empty value, which is not recommended; either fix your input file or adjust the allowEmptyUnquotedValues parsing option)");
+                // set to a null value
+                console.log('expect_bracket before, stack', stack);
+                stack.pop();
+                if (Array.isArray(stack[stack.length-1])) {
+                    stack[stack.length-1][ stack[stack.length-1].length-1 ] = null; // change from {} to null
+                    stack.pop();
+                }
+                else
+                    stack[stack.length-1][last_key] = null; // change from {} to null
+                //stack.pop();
+                expect_bracket = false;
+                console.log('expect_bracket after, stack', stack);
+                continue;
             }
 
             // one level back
@@ -102,6 +122,7 @@ function parse(text, options) {
                 // val = 8
                 var key = (m[2] !== undefined) ? m[2] : m[3];
                 var val = (m[6] !== undefined) ? m[6] : m[8];
+                last_key = key, last_val = val;
 
                 if (val === undefined) {
                     // parent key
@@ -191,7 +212,24 @@ function parse(text, options) {
         }
     }
 
-    if (stack.length != 1) throw new SyntaxError("VDF.parse: open parentheses somewhere");
+    if (stack.length > 1 && options.allowEmptyUnquotedValues) {
+        if (options.allowEmptyUnquotedValues === 'warn') {
+            console.warn("VDF.parse: warning on line " + (i+1) + " at the end of parsing (expected opening bracket, treating the key \""
+                + last_key + "\" as having empty value, which is not recommended; either fix your input file or adjust the allowEmptyUnquotedValues parsing option)");
+            console.warn("Hint: this may also mean that you have an unclosed parentheses somewhere!");
+        }
+        // set to a null value
+        console.log('expect_bracket2 before, stack', stack);
+        stack.pop();
+        if (Array.isArray(stack[stack.length-1])) {
+            stack[stack.length-1][ stack[stack.length-1].length-1 ] = null; // change from {} to null
+            stack.pop();
+        }
+        else
+            stack[stack.length-1][last_key] = null; // change from {} to null
+    }
+
+    if (stack.length !== 1) { console.log(stack.length, stack); throw new SyntaxError("VDF.parse: open parentheses somewhere"); }
 
     return obj;
 }

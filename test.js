@@ -249,6 +249,41 @@ test_expect = {
 perform_test(test, test_expect, { types: false }, "types:false");
 perform_test(test, test_expect, false, "types:false (legacy)");
 
+// allowEmptyUnquotedValues
+
+test = `
+test_empty
+non_empty "a"
+
+test_empty_string "test1"
+test_empty_string
+a
+"a" "b"
+test_empty_obj { "tk" "tv" }
+test_empty_obj
+
+test_empty_arr_string "test1"
+test_empty_arr_string "test1"
+test_empty_arr_string "test2"
+test_empty_arr_string
+//"b" "c"
+//test_empty_arr_obj { "tk" "tv" }
+//test_empty_arr_obj { "tk" "tv" }
+//test_empty_arr_obj
+`;
+
+test_expect = {
+    test_empty: null,
+    test_empty_string: ['test1', null],
+    test_empty_obj: [{tk: 'tv'}, null],
+    test_empty_arr_string: ['test1', 'test1', null],
+    test_empty_arr_obj: [{tk: 'tv'}, {tk: 'tv'}, null]
+};
+
+perform_test(test, test_expect, { allowEmptyUnquotedValues: false }, "allowEmptyUnquotedValues:false (except fail)", true);
+console.log('=');
+console.log("output:", perform_test(test, test_expect, { allowEmptyUnquotedValues: true }, "allowEmptyUnquotedValues:true"));
+
 //
 // stringify de-arrayify
 //

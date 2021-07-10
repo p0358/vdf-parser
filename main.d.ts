@@ -12,6 +12,15 @@ declare module 'vdf-parser' {
          * In such case, the existing text value would be replaced with the new one, and existing object patched with the new values.
          */
         arrayify: boolean = true;
+
+        /**
+         * Allow empty unquoted values, when a line contains only a key, which is not followed by a value.
+         * Does not affect quoted empty values ("").
+         * You may set it to false in order to get a more strict parsing, because an empty unquoted value is normally something unexpected and causes a syntax error in other parsers.
+         * You may keep it allowed to avoid random errors, in case you suspect your source of the possibility of producing malformed input.
+         * Defaults to "warn" to allow, but warn with console.warn when encountered.
+         */
+        allowEmptyUnquotedValues: boolean | "warn" = "warn";
     }
 
     interface VDFStringifyOptions {

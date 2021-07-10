@@ -45,3 +45,10 @@ export function stringify(obj: object, pretty?: boolean = false): string;
 const VDF = require('vdf-parser');
 var parsed = VDF.parse(text);
 ```
+
+or
+
+```js
+import * as VDF from 'vdf-parser';
+let parsed = VDF.parse(text);
+```

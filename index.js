@@ -1,12 +1,14 @@
 // a simple parser for Valve's KeyValue format
 // https://developer.valvesoftware.com/wiki/KeyValues
 //
-// authors: Rossen Popov, 2014-2016; p0358, 2019
+// authors:
+// Rossen Popov, 2014-2016
+// p0358, 2019-2021
 
 const TYPEEX = {
     INT: /^\-?\d+$/,
     FLOAT: /^\-?\d+\.\d+$/,
-    BOOLEAN: /true|false/i,
+    BOOLEAN: /^(true|false)$/i,
 }
 
 function parse(text, types = true) {
@@ -42,7 +44,7 @@ function parse(text, types = true) {
         // done in separate if to retain correct line numbers in errors
         
         // skip tricky comments + add newlines around brackets, while making sure that slashes are not part of some key/value (inside quotes)
-        var odd = false;
+        var odd = false; // odd number of quotes encountered means we are inside of a quote value
         var comment_slash_pos = -1;
         sanitization: for (var l = 0; l < line.length; l++) {
             switch (line.charAt(l)) {

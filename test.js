@@ -1,4 +1,4 @@
-const VDF = require('./index');
+const VDF = require('./main');
 
 let test1 = `
 "Inline objects and arrayifying"

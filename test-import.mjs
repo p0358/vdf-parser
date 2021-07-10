@@ -1,5 +1,5 @@
-import * as VDF from './index.js';
-// not: import { VDF } from './index.js';
+import * as VDF from './main.js';
+// not: import { VDF } from './main.js';
 
 let test1 = `
 very basic

@@ -2,7 +2,7 @@
 
 `vdf-parser` is a library that can convert VDF to JSON and vice versa.
 
-It is mostly based on [rossengeorgiev/vdf-parser](https://github.com/rossengeorgiev/vdf-parser) and includes some features inspired by [RoyalBingBong/vdfplus](https://github.com/RoyalBingBong/vdfplus) (which lacked some features supported by the former...), but contains many new features and fixes.
+It is mostly based on [rossengeorgiev/vdf-parser](https://github.com/rossengeorgiev/vdf-parser) and includes some features inspired by [RoyalBingBong/vdfplus](https://github.com/RoyalBingBong/vdfplus) (which lacked some features supported by the former...), but contains **many** new features and fixes.
 
 Format: https://developer.valvesoftware.com/wiki/KeyValues
 
@@ -15,7 +15,7 @@ VDF may contain comments. However, they are not preserved during decoding.
 - Supports uppercase characters in keys and values (and unquoted floats in values)
 - Supports value type recognition and automatic conversion (booleans, integers, floats)
 - Supports non well formed objects (missing newlines), for example: `"1" { "label" "#SFUI_WinMatchColon" "value" "#SFUI_Rounds" }`
-- Recognizes conditionals (ex. `[$WIN32||$X360]`), but skips their interpretation
+- Supports conditionals (ex. `[$WIN32||$X360]`)
 - Includes TypeScript types
 
 ## Methods
@@ -54,6 +54,15 @@ interface VDFParseOptions {
      * In such case, the existing text value would be replaced with the new one, and existing object patched with the new values.
      */
     arrayify: boolean = true;
+
+    /**
+     * If defined, conditionals will be taken into account while parsing the VDF.
+     * Provide a list of defined conditionals without leading dollar sign and any found conditionals will be validated against this list.
+     * If you provide an empty array, everything requiring any conditional defined will be dropped.
+     * Conditions in VDF are processed from left to right.
+     * See README and test.js for examples of usage.
+     */
+    conditionals?: string[];
 }
 
 interface VDFStringifyOptions {
@@ -68,6 +77,23 @@ interface VDFStringifyOptions {
     indent: string = "\t";
 }
 ```
+
+## Conditionals
+
+This library has support for conditionals. For example, if you parse the following text:
+```
+"test1" "test" [$WIN32||$X360]  // preserved
+"test2" "test" [!$PS3]          // preserved
+"test3" "test" [!$WIN32&&!$OSX] // removed
+"test4" "test" [$X360]          // removed
+```
+with the following line:
+```js
+VDF.parse(text, { conditionals: ['WIN32'] });
+```
+the first two lines will be preserved and the last two ones will get removed.
+
+The conditional strings must follow the format, be written with capitalized letters, start with a dollar sign and contain no spaces, otherwise parsing will fail. You can open an issue if you encounter any valid VDF file in the wild that does not meet these conditions.  
 
 ## Installation
 

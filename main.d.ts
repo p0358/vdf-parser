@@ -12,6 +12,15 @@ declare module 'vdf-parser' {
          * In such case, the existing text value would be replaced with the new one, and existing object patched with the new values.
          */
         arrayify: boolean = true;
+
+        /**
+         * If defined, conditionals will be taken into account while parsing the VDF.
+         * Provide a list of defined conditionals without leading dollar sign and any found conditionals will be validated against this list.
+         * If you provide an empty array, everything requiring any conditional defined will be dropped.
+         * Conditions in VDF are processed from left to right.
+         * See README and test.js for examples of usage.
+         */
+        conditionals?: string[];
     }
 
     interface VDFStringifyOptions {

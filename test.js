@@ -131,6 +131,7 @@ misc//{}
     "bool_test_not_ok2" notTRuE
     "not_ps3" "not_ps3" [!$PS3] "ps3" "ps3" [$PS3]
     "not_ps3_""not_ps3"[!$PS3]"ps3_""ps3"[$PS3][$PS3] // the orphan one will be ignored, but the original parser probably did not do that
+    "not_ps3__""not_ps3"[!$PS3][!$PS3]"ps3__""ps3"[$PS3][$PS3] // the orphan ones will be ignored, but the original parser probably did not do that
 }// some empty lines:
 
     
@@ -213,7 +214,8 @@ test_expect = {
         bool_test_not_ok1: 'AA_TRuE_BB',
         bool_test_not_ok2: 'notTRuE',
         not_ps3: 'not_ps3', ps3: 'ps3',
-        not_ps3_: 'not_ps3', ps3_: 'ps3'
+        not_ps3_: 'not_ps3', ps3_: 'ps3',
+        not_ps3__: 'not_ps3', ps3__: 'ps3'
     },
     multiline: {
         z: [ 'z', {a: 'a'} ],
@@ -304,6 +306,67 @@ test_expect = {
 };
 perform_test(test, test_expect, { types: false }, "types:false");
 perform_test(test, test_expect, false, "types:false (legacy)");
+
+// conditional tests
+
+test = `
+"ps3" "ps3" [$PS3]
+"not_ps3" "not_ps3" [!$PS3]
+"ps3_or_win32" "ps3_or_win32" [$PS3||$WIN32]
+"not_win32_and_not_osx" "not_win32_and_not_osx" [!$WIN32&&!$OSX]
+"not_xbox_and_not_osx" "not_xbox_and_not_osx" [!$XBOX&&!$OSX]
+"not_win32_or_not_osx" "not_win32_or_not_osx" [!$WIN32||!$OSX]
+"not_win32_or_xbox" "not_win32_or_xbox" [!$WIN32||$XBOX]
+"not_win32_or_not_xbox" "not_win32_or_not_xbox" [!$WIN32||!$XBOX]
+"not_win32_and_not_xbox" "not_win32_and_not_xbox" [!$WIN32&&!$XBOX]
+"not_win32_and_xbox" "not_win32_and_xbox" [!$WIN32&&$XBOX]
+"duped" "duped1" [$PS3]
+"duped" "duped2" [!$PS3]
+`;
+
+test_expect = {
+    ps3: 'ps3',
+    not_ps3: 'not_ps3',
+    ps3_or_win32: 'ps3_or_win32',
+    not_win32_and_not_osx: 'not_win32_and_not_osx',
+    not_xbox_and_not_osx: 'not_xbox_and_not_osx',
+    not_win32_or_not_osx: 'not_win32_or_not_osx',
+    not_win32_or_xbox: 'not_win32_or_xbox',
+    not_win32_or_not_xbox: 'not_win32_or_not_xbox',
+    not_win32_and_not_xbox: 'not_win32_and_not_xbox',
+    not_win32_and_xbox: 'not_win32_and_xbox',
+    duped: ['duped1', 'duped2']
+};
+perform_test(test, test_expect, undefined, "conditionals:undefined (default)");
+
+test_expect = {
+    not_ps3: 'not_ps3',
+    ps3_or_win32: 'ps3_or_win32',
+    not_xbox_and_not_osx: 'not_xbox_and_not_osx',
+    not_win32_or_not_osx: 'not_win32_or_not_osx',
+    not_win32_or_not_xbox: 'not_win32_or_not_xbox',
+    duped: 'duped2'
+};
+perform_test(test, test_expect, { conditionals: ['WIN32'] }, "conditionals:WIN32");
+
+test_expect = {
+    not_ps3: 'not_ps3',
+    not_win32_and_not_osx: 'not_win32_and_not_osx',
+    not_xbox_and_not_osx: 'not_xbox_and_not_osx',
+    not_win32_or_not_osx: 'not_win32_or_not_osx',
+    not_win32_or_xbox: 'not_win32_or_xbox',
+    not_win32_or_not_xbox: 'not_win32_or_not_xbox',
+    not_win32_and_not_xbox: 'not_win32_and_not_xbox',
+    duped: 'duped2'
+};
+perform_test(test, test_expect, { conditionals: [] }, "conditionals:[]");
+
+test = `
+"invalid" "invalid" [$XBOX || $PS3|| $WIN32]
+"invalid" "invalid" [$Xbox||$PS3||WIN32]
+"invalid" "invalid" [$Xbox || $PS3 || WIN32]
+`;
+perform_test(test, {}, { conditionals: [] }, "conditionals:[] (invalid)", true);
 
 //
 // stringify de-arrayify

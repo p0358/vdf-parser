@@ -20,8 +20,10 @@ function parse(text, options) {
         types:
             (typeof options === "boolean") ? options // backward compatibility with the old boolean param
             : ((typeof options === "object" && "types" in options) ? options.types : true),
-        arrayify: (typeof options === "object" && "arrayify" in options) ? options.arrayify : true
+        arrayify: (typeof options === "object" && "arrayify" in options) ? options.arrayify : true,
+        conditionals: (typeof options === "object" && "conditionals" in options) ? options.conditionals : undefined
     };
+    if (options.conditionals && !Array.isArray(options.conditionals) && typeof options.conditionals === "string") options.conditionals = [options.conditionals];
 
     lines = text.split("\n");
 
@@ -39,7 +41,7 @@ function parse(text, options) {
         '|([a-zA-Z0-9\\-\\_.]+)' + // val
         '))?' +
     
-        '(?:[ \\t]*\\[\\!?\\$[A-Z0-9]+(?:(?:[\\|]{2}|[\\&]{2})\\!?\\$[A-Z0-9]+)*\\])?' // conditionals -- ignore
+        '(?:[ \\t]*\\[(\\!?\\$[A-Z0-9]+(?:(?:[\\|]{2}|[\\&]{2})\\!?\\$[A-Z0-9]+)*)\\])?' // conditionals
     );
 
     var i = -1, j = lines.length, line, sublines;
@@ -162,6 +164,35 @@ function parse(text, options) {
                     }
                     line += "\n" + getNextLine();
                     continue;
+                }
+
+                if (options.conditionals !== undefined && Array.isArray(options.conditionals) && m[9]) {
+                    var conditionals = m[9];
+                    var single_cond_regex = new RegExp('^(\\|\\||&&)?(!)?\\$([A-Z0-9]+)');
+                    var ok = false;
+                    while (conditionals) {
+                        var d = single_cond_regex.exec(conditionals);
+                        if (d === null || !d[3])
+                            throw new SyntaxError("VDF.parse: encountered an incorrect conditional: " + conditionals);
+                        conditionals = conditionals.replace(d[0], '').trim(); // erase parsed fragment from the list
+                        var op = d[1];
+                        var not = d[2] && d[2] === '!';
+                        var cond = d[3];
+                        var includes = options.conditionals.indexOf(cond) !== -1;
+                        var _ok = not ? !includes : includes;
+                        if (!op || op === '||')
+                            ok = ok || _ok;
+                        else // &&
+                            ok = ok && _ok;
+                    }
+                    //console.log('cond', key, val, _ok);
+                    if (!ok) {
+                        // conditions are not met
+                        // continue processing the line (code duplicated from the bottom of our while loop)
+                        line = line.replace(m[0], "");
+                        if (!line || line[0] == '/') break; // break if there is nothing else (of interest) left in this line
+                        continue;
+                    }
                 }
                 
                 if (options.types) {

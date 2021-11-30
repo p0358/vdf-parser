@@ -71,7 +71,7 @@ function parse(text, options) {
         var comment_slash_pos = -1;
         sanitization: for (var l = 0; l < _line.length; l++) {
             switch (_line.charAt(l)) {
-                case '"': if (_line.charAt(l-1) != '\\') odd = !odd; break;
+                case '"': if (_line.charAt(l - 1) !== '\\' || _line.charAt(l - 2) === '\\') odd = !odd; break;
                 case '/': if (!odd) { comment_slash_pos = l; break sanitization; } break;
                 case '{': if (!odd) { _line = _line.slice(0, l) + "\n{\n" + _line.slice(l+1); l+=2; } break;
                 case '}': if (!odd) { _line = _line.slice(0, l) + "\n}\n" + _line.slice(l+1); l+=2; } break;

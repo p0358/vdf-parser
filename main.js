@@ -25,7 +25,7 @@ function parse(text, options) {
     };
     if (options.conditionals && !Array.isArray(options.conditionals) && typeof options.conditionals === "string") options.conditionals = [options.conditionals];
 
-    lines = text.split("\n");
+    var lines = text.split("\n");
 
     var obj = {};
     var stack = [obj];
@@ -108,7 +108,7 @@ function parse(text, options) {
 
         // parse keyvalue pairs
         while (true) {
-            m = re_kv.exec(line);
+            var m = re_kv.exec(line);
 
             if (m === null) {
                 throw new SyntaxError("VDF.parse: invalid syntax on line " + (i+1) + ":\n" + line);

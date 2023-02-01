@@ -27,7 +27,7 @@ VDF may contain comments. However, they are not preserved during decoding.
  * @param options Parsing options. Accepts a boolean for backwards compatibility ("types" option defaulting to true)
  * @returns Parsed object
  */
-export function parse(text: string, options?: VDFParseOptions | boolean): object;
+export function parse<T>(text: string, options?: VDFParseOptions | boolean): T;
 
 /**
  * Parse a JavaScript object into a VDF string
@@ -44,16 +44,18 @@ where options are as follows:
 interface VDFParseOptions {
     /**
      * Attempt to automatically convert numbers and booleans to their correct types, defaults to true
+     * @default true
      */
-    types: boolean = true;
+    types: boolean;
 
     /**
      * Arrayify the values if they appear multiple times.
      * Enabled by default, because Source does support multiple values with the same key (as separate entries).
      * One may want to disable it if they expect a single value and their code is not prepared for different cases.
      * In such case, the existing text value would be replaced with the new one, and existing object patched with the new values.
+     * @default true
      */
-    arrayify: boolean = true;
+    arrayify: boolean;
 
     /**
      * If defined, conditionals will be taken into account while parsing the VDF.
@@ -68,13 +70,15 @@ interface VDFParseOptions {
 interface VDFStringifyOptions {
     /**
      * Add indentation to the resulting text, defaults to false
+     * @default false
      */
-    pretty: boolean = false;
+    pretty: boolean;
 
     /**
      * Indent with the following characters, defaults to a tabulator, requires "pretty" to be set to true
+     * @default "\t"
      */
-    indent: string = "\t";
+    indent: string;
 }
 ```
 

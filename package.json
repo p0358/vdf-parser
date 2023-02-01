@@ -1,6 +1,6 @@
 {
   "name": "vdf-parser",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Package for (de)serialization of Valve's KeyValue format (VDF)",
   "main": "main.js",
   "types": "main.d.ts",

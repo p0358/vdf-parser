@@ -41,7 +41,7 @@ function parse(text, options) {
         '|([a-zA-Z0-9\\-\\_.]+)' + // val
         '))?' +
     
-        '(?:[ \\t]*\\[(\\!?\\$[A-Z0-9]+(?:(?:[\\|]{2}|[\\&]{2})\\!?\\$[A-Z0-9]+)*)\\])?' // conditionals
+        '(?:[ \\t]*\\[(\\$?\\!?\\$?[A-Z0-9]+(?:(?:[\\|]{2}|[\\&]{2})\\$?\\!?\\$[A-Z0-9]+)*)\\])?' // conditionals
     );
 
     var i = -1, j = lines.length, line, sublines;
@@ -233,7 +233,7 @@ function parse(text, options) {
             if (expect_bracket) break; // there was just key, no value, the next line should contain bracket (to go one level deeper)
             line = line.replace(m[0], "").trim();
             if (!line || line[0] == '/') break; // break if there is nothing else (of interest) left in this line
-            line = line.replace(/^\s*\[\!?\$[A-Z0-9]+(?:(?:[\|]{2}|[\&]{2})\!?\$[A-Z0-9]+)*\]/, "").trim(); // ignore conditionals
+            line = line.replace(/^\s*\[\$?\!?\$?[A-Z0-9]+(?:(?:[\|]{2}|[\&]{2})\$?\!?\$?[A-Z0-9]+)*\]/, "").trim(); // ignore conditionals
             if (!line || line[0] == '/') break; // again; if there's nothing left after skipping the conditional
         }
     

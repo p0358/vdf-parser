@@ -132,6 +132,7 @@ misc//{}
     "not_ps3" "not_ps3" [!$PS3] "ps3" "ps3" [$PS3]
     "not_ps3_""not_ps3"[!$PS3]"ps3_""ps3"[$PS3][$PS3] // the orphan one will be ignored, but the original parser probably did not do that
     "not_ps3__""not_ps3"[!$PS3][!$PS3]"ps3__""ps3"[$PS3][$PS3] // the orphan ones will be ignored, but the original parser probably did not do that
+    "broken_cond" "has_characters_reversed_but_it_should_still_parse..." [$!ENGLISH]
 }// some empty lines:
 
     

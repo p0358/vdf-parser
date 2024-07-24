@@ -236,6 +236,81 @@ test_expect = {
 
 perform_test(test, test_expect, {}, "main");
 
+// lowercase keys test
+test_expect = {
+    'inline objects and arrayifying': {
+        '0': { label: '#SFUI_CashColon' },
+        '1': { label: '#SFUI_WinMatchColon', value: '#SFUI_Rounds' },
+        '2': [
+            { label: '#SFUI_TimePerRoundColon', value: '2 #SFUI_Minutes' },
+            { label: '#SFUI_TimePerRoundColon', value: '2 #SFUI_Minutes' }
+        ],
+        '3': [
+            'value before object',
+            { label: '#SFUI_BuyTimeColon', value: '45 #SFUI_Seconds' }
+        ],
+        '4': [
+            { label: '#SFUI_SpectateColon', value: '#SFUI_SpectateTeamOnly' },
+            { label: '#SFUI_SpectateColon', value: '#SFUI_SpectateTeamOnly' },
+            'value after object'
+        ],
+        '5': {
+            label: [ '#SFUI_BotsColon_1', '#SFUI_BotsColon_2' ],
+            value: [ '#SFUI_BotDifficulty3_1', '#SFUI_BotDifficulty3_2' ]
+        },
+        '6': { label: '#SFUI_WinMatchColon' },
+        '7': { label: '#SFUI_WinMatchColon', more: 'here' }
+    },
+    empty: {},
+    empty2: {empty: {}},
+    empty3: [{}, {}],
+    no_quotes_tests: {
+        '0': [ -12.34, -1234, 12.34, -12.34 ],
+        test1: 1,
+        test2: 'val2',
+        test3: [ true, false ],
+        test4: '',
+        test5: {},
+        no: 'space'
+    },
+    arrayifying: {
+        string_then_obj: ['hi', { 'obj_key': 'obj_val' }],
+        obj_then_string: [{ 'obj_key': 'obj_val' }, 'hi']
+    },
+    whitespacing_test: {},
+    misc: {
+        escapedquotes: 'aaa/////\\\\\\nooo\\"{{uuu\\"\\"{{\\"hhh',
+        menu_dlg_leaderboards_lost_connection: 'You must be connected to Xbox LIVE to view Leaderboards. Please check your connection and try again.',
+        sfui_gamemodeprogressdisclaimer: 'No stats tracking.',
+        sfui_singleplayer_invite_on: '',
+        sfui_upsell_nav: '${west} Unlock Full Game     ${confirm} Quit     ${cancel} Back to Game',
+        cstrike_titlestxt_training6: 'Defuse the bomb by aiming at bomb and holding ${use}.',
+        bool_test_ok1: true,
+        bool_test_ok2: true,
+        bool_test_not_ok1: 'AA_TRuE_BB',
+        bool_test_not_ok2: 'notTRuE',
+        not_ps3: 'not_ps3', ps3: 'ps3',
+        not_ps3_: 'not_ps3', ps3_: 'ps3',
+        not_ps3__: 'not_ps3', ps3__: 'ps3'
+    },
+    multiline: {
+        z: [ 'z', {a: 'a'} ],
+        a: "line1\nline2\nline3",
+        b: "\nline1\nline2\n",
+        c: 'c',
+        d: "\nddd",
+        e: 'e',
+        f: [
+            "reee\neee \n   \n",
+            {a:'a'},
+            {a:'a', b:{b:'b'}, c:{ a:"fd \n  \n\nf" }}
+        ],
+        g: "g\ng",
+        h: "hf{a a}\n"
+    }
+};
+perform_test(test, test_expect, {lowercase: true}, "lowercase main");
+
 // arrayify tests
 
 test = `

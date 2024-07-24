@@ -23,6 +23,14 @@ declare module 'vdf-parser' {
          * See README and test.js for examples of usage.
          */
         conditionals?: string[];
+
+        /**
+         * Lowercase the keys.
+         * Disabled by default.
+         * Sometimes the keys of a VDF are lowercased in the game. This allows for parsing consistently games that utilize this technique.
+         * @default false
+         */
+        lowercase: boolean;
     }
 
     interface VDFStringifyOptions {

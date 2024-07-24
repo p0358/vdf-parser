@@ -21,7 +21,8 @@ function parse(text, options) {
             (typeof options === "boolean") ? options // backward compatibility with the old boolean param
             : ((typeof options === "object" && "types" in options) ? options.types : true),
         arrayify: (typeof options === "object" && "arrayify" in options) ? options.arrayify : true,
-        conditionals: (typeof options === "object" && "conditionals" in options) ? options.conditionals : undefined
+        conditionals: (typeof options === "object" && "conditionals" in options) ? options.conditionals : undefined,
+        lowercase: (typeof options === "object" && "lowercase" in options) ? options.lowercase : false,
     };
     if (options.conditionals && !Array.isArray(options.conditionals) && typeof options.conditionals === "string") options.conditionals = [options.conditionals];
 
@@ -121,6 +122,9 @@ function parse(text, options) {
             // val = 8
             var key = (m[2] !== undefined) ? m[2] : m[3];
             var val = (m[6] !== undefined) ? m[6] : m[8];
+            if(options.lowercase) {
+                key = key.toLowerCase();
+            }
 
             if (val === undefined) {
                 // parent key

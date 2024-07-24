@@ -17,6 +17,7 @@ VDF may contain comments. However, they are not preserved during decoding.
 - Supports non well formed objects (missing newlines), for example: `"1" { "label" "#SFUI_WinMatchColon" "value" "#SFUI_Rounds" }`
 - Supports conditionals (ex. `[$WIN32||$X360]`)
 - Includes TypeScript types
+- Supports lowercasing keys option
 
 ## Methods
 
@@ -65,6 +66,14 @@ interface VDFParseOptions {
      * See README and test.js for examples of usage.
      */
     conditionals?: string[];
+
+    /**
+     * Lowercase the keys.
+     * Disabled by default.
+     * Sometimes the keys of a VDF are lowercased in the game. This allows for parsing consistently games that utilize this technique.
+     * @default true
+     */
+    lowercase: boolean;
 }
 
 interface VDFStringifyOptions {
